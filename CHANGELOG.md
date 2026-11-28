@@ -46,6 +46,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+* The DoWhy bridge methods on `CausalResult` (`estimate_effect`, `fit_scm`, `summary`, ...)
+  have docstrings, so they show up in the API reference and `help()`.
 * `FeatureSelectionResult.to_design_matrix(dropna=True)` drops only as many leading
   rows as the largest lag it actually uses, not always `max_lag`, so its row count now
   depends on the selection: align the target on the index (`y = df[target].loc[X.index]`).
@@ -64,6 +66,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   dropped. `kci` raised `RuntimeError` for it when conditioning, and the k-NN tests
   returned a seed-dependent p-value, sometimes 0. A constant conditioning column, or
   one constant component of a multivariate X or Y, still runs the full test.
+* `CausalResult.plot()`, `CdnotsResult.plot()`, `TigramiteResult.plot()`,
+  `StabilitySelector.plot_stability_path()`, and `plot_graph(..., target_node=...)`
+  now accept `pandas.Index` and NumPy arrays for `var_names` (such as
+  `df.columns`) and fall back on empty sequences without raising `ValueError` on
+  truthiness checks (#207).
 * `detect_confounded_clusters` (and so `check_tetrads`) tested the same tetrad
   twice and never tested `s02*s13 - s03*s12`, so a quartet could be reported as
   vanishing when that tetrad was significant, and the result depended on column
@@ -150,6 +157,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   `tigramite>=5.2` (#146).
 * `precision_recall_3d` counts the true positives of bool graphs (it returned 0 for
   both) and accepts a graph with only lag 0 instead of raising `IndexError`.
+* `precision_recall_3d` returns 0.0 recall with no `RuntimeWarning` when the ground
+  truth has no links (including when it has only lag-1 self-loops), matching
+  `evaluate_graph` (#205).
 * `evaluate_graph` and `plot_metrics_summary` raise a `ValueError` for a graph that is not
   0/1 (or bool), such as bootstrap persistence scores, instead of casting it to `int8`,
   which scored 0.7 as "no edge"; a shape mismatch is a `ValueError`, not an `assert` (#165).
